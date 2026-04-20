@@ -12,8 +12,8 @@ install:
 		--yes
 	@echo "Enabling custom modules..."
 	ddev drush en data_source datatables --yes
-	@echo "Enabling Radix and subtheme..."
-	ddev drush en radix --yes
+	@echo "Enabling themes..."
+	ddev drush theme:enable radix --yes
 	ddev drush theme:enable YOUR_SUBTHEME_NAME --yes
 	ddev drush config:set system.theme default YOUR_SUBTHEME_NAME --yes
 	@echo "Clearing caches..."
