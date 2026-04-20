@@ -1,0 +1,292 @@
+<?php
+
+/**
+ * @file
+ * Provides integration of the jQuery DataTables plugin into Drupal.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Render\Element;
+
+/**
+ * Implements hook_help().
+ */
+function datatables_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.datatables':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The DataTables module provides integration of the jQuery <a href="@datatables">DataTables</a> plugin into Drupal. For more information, see the <a href="@online-documentation">online documentation for the DataTables module</a>.', [
+          '@datatables' => 'https://datatables.net/',
+          '@online-documentation' => 'https://www.drupal.org/docs/contributed-modules/datatables',
+        ]) . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function datatables_theme() {
+  return [
+    'datatable' => [
+      'variables' => [
+        'header' => NULL,
+        'rows' => NULL,
+        'attributes' => [],
+        'caption' => NULL,
+        'colgroups' => [],
+        'sticky' => FALSE,
+        'responsive' => TRUE,
+        'datatable_options' => [],
+        'tabletools' => FALSE,
+      ],
+      'file' => 'datatables.theme.inc',
+    ],
+  ];
+}
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function datatables_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'datatables') {
+    // Allow other modules to alter the library definition.
+    \Drupal::moduleHandler()->alter('datatables_library_info', $libraries);
+  }
+}
+
+/**
+ * Prepares variables for datatable templates.
+ *
+ * Default template: datatable.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - header: An array containing the table headers. Each element of the array
+ *     can be either a localized string or an associative array with at least the
+ *     following keys:
+ *     - data: The localized title of the table column.
+ *     - field: The database field represented in the table column.
+ *     - sort: A default sort order for this column ("asc" or "desc").
+ *     Any HTML attributes, such as "colspan", can be set as array keys.
+ *   - rows: An array of table rows. Every row is an array of cells, or an
+ *     associative array with the following keys:
+ *     - data: An array of cells.
+ *     - no_striping: A boolean indicating that the row should receive no
+ *       'odd/even' styling. Defaults to FALSE.
+ *     - attributes: An array of HTML attributes to apply to the row.
+ *     Each cell can be either a string or an associative array with at least the
+ *     following keys:
+ *     - data: The string to display in the table cell.
+ *     - header: Indicates this cell is a header.
+ *     Any HTML attributes, such as "colspan", can be set as array keys.
+ *   - attributes: An array of HTML attributes to apply to the table tag.
+ *   - caption: A localized string to use for the <caption> tag.
+ *   - colgroups: An array of column groups. Each element of the array can be
+ *     either:
+ *     - An array of columns, each of which is an associative array of HTML
+ *       attributes to apply to the <col> tag.
+ *     - An array of attributes to apply to the <colgroup> tag, which must
+ *       include a "data" attribute. To add attributes to columns, set the
+ *       "data" attribute with an array of columns, each of which is an
+ *       associative array of HTML attributes.
+ *     See theme_table() for examples of how to format the value of this key.
+ *   - sticky: A boolean indicating whether to use a "sticky" table header.
+ *   - datatable_options: DataTables options.
+ */
+function template_preprocess_datatable(&$variables) {
+  // Format the table header if it exists.
+  if (!empty($variables['header'])) {
+    foreach ($variables['header'] as $key => $cell) {
+      $variables['header'][$key] = _datatables_preprocess_cell($cell);
+    }
+  }
+  // Format table rows.
+  if (!empty($variables['rows'])) {
+    foreach ($variables['rows'] as $row_key => $row) {
+      if (isset($row['data'])) {
+        foreach ($row['data'] as $cell_key => $cell) {
+          $row['data'][$cell_key] = _datatables_preprocess_cell($cell);
+        }
+        $variables['rows'][$row_key] = $row;
+      }
+      else {
+        foreach ($row as $cell_key => $cell) {
+          $row[$cell_key] = _datatables_preprocess_cell($cell);
+        }
+        $variables['rows'][$row_key] = $row;
+      }
+    }
+  }
+  // Use the table template as a base.
+  template_preprocess_table($variables);
+
+  // Process DataTables specific options and library attachments
+  require_once __DIR__ . '/datatables.theme.inc';
+  _datatables_process_options($variables);
+}
+
+/**
+ * Helper function to preprocess table cells.
+ */
+function _datatables_preprocess_cell($cell) {
+  if (is_array($cell)) {
+    $data = '';
+    if (isset($cell['data'])) {
+      $data = $cell['data'];
+      unset($cell['data']);
+    }
+    // TableHeader and TableSelect generate cells with children instead of data.
+    if (isset($cell['children'])) {
+      foreach (Element::children($cell['children']) as $key) {
+        $data .= \Drupal::service('renderer')->render($cell['children'][$key]);
+      }
+      unset($cell['children']);
+    }
+
+    $attributes = $cell;
+    $cell = [];
+    $cell['data'] = $data;
+    foreach ($attributes as $key => $value){
+      $cell[$key] = $value;
+    }
+  }
+  return $cell;
+}
+
+function _datatables_default_settings($AjaxUrl = null, $orderedColumn = 0, $colVisNumber = 0, $page_length = 50, $page_length_option = null, $button = null, $column_data = null)
+{
+  if (empty($page_length_option)) {
+    $page_length_option = [[50, 100, 250, 500, -1], [50, 100, 250, 500, "All"]];
+  }
+  if (is_null($button)) {
+    if ($colVisNumber) {
+      $button = [
+        // First group: Export buttons
+        [
+          'extend' => 'collection',
+          'text' => 'Export',
+          'buttons' => ['copy', 'csv', 'excel', 'pdf', 'print'],
+          'className' => 'btn btn-secondary btn-sm',
+        ],
+        // Second group: Column visibility (separated)
+        [
+          'extend' => 'colvis',
+          'columns' => ':gt(' . $colVisNumber . ')', // Only columns after index 2
+          'className' => 'btn btn-secondary btn-sm',
+        ]
+      ];
+    }else{
+      $button = [
+        // First group: Export buttons
+        [
+          'extend' => 'collection',
+          'text' => 'Export',
+          'buttons' => ['copy', 'csv', 'excel', 'pdf', 'print'],
+          'className' => 'btn btn-secondary btn-sm',
+        ],
+        // Second group: Column visibility (separated)
+        [
+          'extend' => 'colvis',
+          'className' => 'btn btn-secondary btn-sm',
+        ]
+      ];
+    }
+  }
+
+  return [
+    'info' => TRUE,
+    'destroy' => TRUE,
+    'stateSave' => TRUE,
+    'ajax' => $AjaxUrl,
+    'processing' => TRUE,
+    'serverSide' => TRUE,
+    'rowId' => 'id',
+    'paginationType' => 'full_numbers',
+    'pageLength' => $page_length,
+    'lengthMenu' => $page_length_option,
+    'order' => [
+      [$orderedColumn, 'desc'],
+    ],
+    'createdRow' => datatables_js_function("
+      function(row, data, dataIndex) {
+        var dataTableId = this.api().table().node().id;
+        var idxId = 3;
+        if (typeof drupalSettings.datatables.tables != 'undefined' && typeof drupalSettings.datatables.tables[dataTableId] != 'undefined'){
+          if (drupalSettings.datatables.tables[dataTableId]['hasdetail']){
+            $('td:eq(0)', row).addClass('dt-control');
+          }
+          idxId = drupalSettings.datatables.tables[dataTableId].colIdIdx;
+        } else {
+          if (typeof drupalSettings.datatables.hasdetail[dataTableId] != 'undefined'){
+            console.log(drupalSettings.datatables.hasdetail[dataTableId]);
+            if (drupalSettings.datatables.hasdetail[dataTableId]){
+               $('td:eq(0)', row).addClass('dt-control');
+            }
+          }
+          idxId = drupalSettings.datatables.colIdIdx;
+        }
+        //var idxId = data.length - 1;
+        var dataId = data[idxId];
+        $(row).attr('data-id', dataId);
+      }
+    "),
+    'buttons' => $button,
+    'layout' => [
+      'topStart' => [
+        'buttons',
+        'pageLength',
+      ],
+    ],
+    'initComplete' => datatables_js_function("
+      function(settings, json) {
+        var searchData = settings.oSavedState.search.search;
+        if (searchData){
+          var api = this.api();
+          var tableId = api.table().node().id;
+          $('#' + tableId + ' tbody tr:first td:first').each(function(){
+              var tdCheck = $(this);
+              var Colspan = parseInt(tdCheck.attr('colspan'));
+              if (Colspan > 1){
+                tdCheck.removeAttr('colspan');
+              }
+          });
+        }
+        var dataTableId = this.api().table().node().id;
+        if (dataTableId === 'member-transactions-table'){
+          this.api().column(0).visible(false);
+        }else if (dataTableId.startsWith('bonus-detail-table')){
+          this.api().column(0).visible(false);
+        }else if (dataTableId === 'bonus-klaim-table'){
+          console.log(this.api().column(1));
+          this.api().column(1).visible(false);
+        }
+      }
+    "),
+  ];
+}
+
+/**
+ * Marks a raw JavaScript function so it survives JSON encoding.
+ *
+ * Example:
+ * $options['createdRow'] = datatables_js_function("
+ *   function(row, data, dataIndex) {
+ *     $('td:eq(0)', row).addClass('dt-control');
+ *     $(row).attr('data-id', data.id);
+ *     if (data.is_active) {
+ *       $(row).attr('data-status', $(data.is_active).data('status'));
+ *     }
+ *   }
+ * ");
+ *
+ * @param string $code
+ *   The raw JavaScript function as string.
+ *
+ * @return array
+ *   A wrapper array that JS will recognize and eval into a function.
+ */
+function datatables_js_function($code) {
+  return ['__dt_js_function' => $code];
+}

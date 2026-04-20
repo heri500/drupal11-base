@@ -1,0 +1,18 @@
+library_path: 'libraries/datatables'
+cdn: false
+cdn_url: 'https://cdn.datatables.net/2.0.1/js/dataTables.min.js'
+page_length: 10
+state_save: true
+responsive: true
+auto_width: true
+extensions:
+  buttons: 0
+  responsive: 0
+  fixedheader: 0
+  fixedcolumns: 0
+  scroller: 0
+  rowgroup: 0
+  rowreorder: 0
+  searchpanes: 0
+  select: 0
+use_legacy_api: false

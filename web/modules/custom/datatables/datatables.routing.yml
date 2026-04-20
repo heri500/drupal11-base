@@ -1,0 +1,7 @@
+datatables.admin:
+  path: '/admin/config/user-interface/datatables'
+  defaults:
+    _form: '\Drupal\datatables\Form\DatatablesAdminForm'
+    _title: 'DataTables settings'
+  requirements:
+    _permission: 'administer site configuration'

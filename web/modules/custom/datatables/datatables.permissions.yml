@@ -1,0 +1,4 @@
+administer datatables:
+  title: 'Administer DataTables settings'
+  description: 'Configure DataTables module settings.'
+  restrict access: TRUE

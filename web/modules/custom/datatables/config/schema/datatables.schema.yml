@@ -1,0 +1,34 @@
+datatables.settings:
+  type: config_object
+  label: 'DataTables settings'
+  mapping:
+    library_path:
+      type: string
+      label: 'DataTables library path'
+    cdn:
+      type: boolean
+      label: 'Use CDN'
+    cdn_url:
+      type: string
+      label: 'CDN URL'
+    page_length:
+      type: integer
+      label: 'Default page length'
+    state_save:
+      type: boolean
+      label: 'Save state'
+    responsive:
+      type: boolean
+      label: 'Responsive by default'
+    auto_width:
+      type: boolean
+      label: 'Auto width'
+    extensions:
+      type: sequence
+      label: 'Enabled extensions'
+      sequence:
+        type: integer
+        label: 'Extension status'
+    use_legacy_api:
+      type: boolean
+      label: 'Use legacy API compatibility mode'

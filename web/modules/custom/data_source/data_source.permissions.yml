@@ -1,0 +1,6 @@
+'access data source':
+  title: access all data source
+  description: Allow users to access all data source
+'admin data source':
+  title: create and modify all data source
+  description: Allow users to create and modify all data source

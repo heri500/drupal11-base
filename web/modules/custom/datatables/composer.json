@@ -1,0 +1,29 @@
+{
+    "name": "drupal/datatables",
+    "description": "Provides integration of the jQuery DataTables plugin into Drupal.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "homepage": "https://www.drupal.org/project/datatables",
+    "authors": [
+        {
+            "name": "Damien McKenna",
+            "homepage": "https://www.drupal.org/u/damienmckenna",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/datatables",
+        "source": "https://git.drupalcode.org/project/datatables"
+    },
+    "require": {
+        "drupal/core": "^9 || ^10 || ^11"
+    },
+    "extra": {
+        "drush": {
+            "services": {
+                "drush.services.yml": "^10 || ^11"
+            }
+        }
+    }
+}

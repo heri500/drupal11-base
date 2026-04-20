@@ -1,0 +1,16 @@
+services:
+  data_source.service:
+    class: Drupal\data_source\Service\DataSourceService
+    arguments:
+      - '@database'
+      - '@current_user'
+      - '@file_system'
+      - '@entity_type.manager'
+      - '@state'
+      - '@logger.factory'
+      - '@uuid'
+
+  data_source.file_link_generator:
+    class: Drupal\data_source\Service\FileLinkGenerator
+    arguments:
+      - '@file_url_generator'

@@ -1,0 +1,90 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a DataTable.
+ *
+ * Available variables:
+ * - attributes: HTML attributes to apply to the <table> tag.
+ * - caption: A localized string for the <caption> tag.
+ * - colgroups: Column groups. Each group contains the following properties:
+ *   - attributes: HTML attributes to apply to the <colgroup> tag.
+ *   - content: The content that forms the column group.
+ * - header: Table header cells. Each cell contains the following properties:
+ *   - tag: The HTML tag name to use; either 'th' or 'td'.
+ *   - attributes: HTML attributes to apply to the tag.
+ *   - content: The string to use as the cell content.
+ *   - field: The database field or data column associated with the cells.
+ *   - column: A numeric array that can be sorted.
+ * - rows: Table rows. Each row contains the following properties:
+ *   - attributes: HTML attributes to apply to the <tr> tag.
+ *   - data: Table cells.
+ *   - row_number: The numeric position of the row.
+ *   - cells: Table cells. Each cell contains the following properties:
+ *     - tag: The HTML tag name to use; either 'th' or 'td'.
+ *     - attributes: HTML attributes to apply to the tag.
+ *     - content: The string to use as the cell content.
+ *     - active_table_sort: A boolean indicating whether the cell is the active table sort.
+ * - datatable_options: DataTable options to be used to initialize the table.
+ * - tabletools: Boolean indicating whether to include TableTools support.
+ * - responsive: Boolean indicating whether to enable responsive mode.
+ *
+ * @see template_preprocess_datatable()
+ *
+ * @ingroup themeable
+ */
+#}
+<table{{ attributes.addClass('table', 'datatable') }}>
+  {% if caption %}
+    <caption>{{ caption }}</caption>
+  {% endif %}
+
+  {% if colgroups %}
+    {% for colgroup in colgroups %}
+      <colgroup{{ colgroup.attributes }}>
+        {% if colgroup.content %}
+          {{ colgroup.content }}
+        {% endif %}
+      </colgroup>
+    {% endfor %}
+  {% endif %}
+
+  {% if header %}
+    <thead>
+    <tr>
+      {% for cell in header %}
+      <{{ cell.tag }}{{ cell.attributes }}>
+      {{ cell.content }}
+    </{{ cell.tag }}>
+    {% endfor %}
+    </tr>
+    </thead>
+  {% endif %}
+
+  {% if rows %}
+    <tbody>
+    {% for row in rows %}
+    <tr{{ row.attributes }}>
+      {% for cell in row.cells %}
+        <{{ cell.tag }}{{ cell.attributes }}>
+        {{ cell.content }}
+        </{{ cell.tag }}>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+  {% endif %}
+
+  {% if footer %}
+    <tfoot>
+    {% for row in footer %}
+    <tr{{ row.attributes }}>
+      {% for cell in row.cells %}
+        <{{ cell.tag }}{{ cell.attributes }}>
+        {{ cell.content }}
+        </{{ cell.tag }}>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+    </tfoot>
+  {% endif %}
+</table>

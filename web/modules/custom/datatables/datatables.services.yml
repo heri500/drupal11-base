@@ -1,0 +1,6 @@
+services:
+  datatables.manager:
+    class: Drupal\datatables\DatatablesManager
+    arguments: ['@config.factory', '@module_handler', '@library.discovery']
+    tags:
+      - { name: backend_overridable }

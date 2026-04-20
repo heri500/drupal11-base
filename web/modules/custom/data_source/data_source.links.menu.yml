@@ -1,0 +1,7 @@
+# data_source.links.menu.yml
+data_source.settings:
+  title: 'Data Source'
+  description: 'Configure data source database connection settings.'
+  route_name: data_source.settings
+  parent: system.admin_config_system
+  weight: 10

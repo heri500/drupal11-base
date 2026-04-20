@@ -1,0 +1,23 @@
+# Drupal
+/web/core
+/web/modules/contrib
+/web/themes/contrib
+/web/profiles/contrib
+/web/libraries
+
+# Composer
+/vendor
+
+# DDEV
+/.ddev/.gitignore
+/.ddev/import.db
+
+# Drupal files
+/web/sites/default/settings.php
+/web/sites/default/files
+
+# OS
+.DS_Store
+
+# Phpstorm
+/.idea

@@ -1,0 +1,253 @@
+<?php
+
+use Drupal\Core\Session\AccountInterface;
+/**
+ * Returns #prefix and #suffix for a Bootstrap input group with a label.
+ *
+ * @param string $label
+ *   The label to display. Can contain raw HTML like icons.
+ * @param bool $sanitize
+ *   Whether to escape HTML entities in the label. Set to FALSE to allow HTML tags.
+ *
+ * @return array
+ *   An associative array with #prefix and #suffix.
+ */
+function data_source_input_group_prefix_suffix(string $label, bool $sanitize = TRUE, $add_margin = 'mb-2'): array {
+  $safe_label = $sanitize ? htmlspecialchars($label, ENT_QUOTES, 'UTF-8') : $label;
+
+  return [
+    '#prefix' => '<div class="input-group '.$add_margin.'"><span class="input-group-text">' . $safe_label . '</span>',
+    '#suffix' => '</div>',
+  ];
+}
+
+/**
+ * Provides Bootstrap 5 form-switch wrapper for Drupal checkboxes.
+ *
+ * @param string $label
+ *   The label text to display beside the switch.
+ * @param bool $sanitize
+ *   Whether to sanitize the label text (default TRUE).
+ *
+ * @return array
+ *   Render array keys for #prefix and #suffix.
+ */
+function data_source_checkbox_prefix_suffix(string $label, bool $sanitize = TRUE): array {
+  $safe_label = $sanitize ? htmlspecialchars($label, ENT_QUOTES, 'UTF-8') : $label;
+
+  return [
+    '#prefix' => '<div class="form-check form-switch mb-3 ps-3">',
+    '#suffix' => '</div>',
+  ];
+}
+
+/**
+ * Returns the site logo URL as configured in the current theme settings.
+ *
+ * @return string|null
+ *   The absolute URL to the site logo, or NULL if no logo is set.
+ */
+function data_source_get_site_logo_url(): ?string {
+  // Get the default active theme.
+  $theme = \Drupal::config('system.theme')->get('default');
+
+  // Get the logo file URI from theme settings.
+  $logo_uri = theme_get_setting('logo.url', $theme);
+  if (!empty($logo_uri)) {
+    // Generate the absolute URL from the URI.
+    return \Drupal::service('file_url_generator')->generateAbsoluteString($logo_uri);
+  }
+
+  return NULL;
+}
+
+/**
+ * Adds standard action buttons and AJAX wrapper to a form.
+ *
+ * @param array &$form
+ *   The form array to modify.
+ * @param string $wrapper_id
+ *   The DOM ID used as an AJAX wrapper.
+ * @param string|null $submit_callback
+ *   Optional submit callback string (e.g., '::ajaxSubmit'). Default is '::ajaxSubmit'.
+ * @param array $cancel_options
+ *   Optional configuration for cancel button behavior:
+ *   - 'type': 'dialog' (default) to close modal, 'redirect' to navigate to URL,
+ *     'ajax' for AJAX callback
+ *   - 'callback': The AJAX callback method (e.g., '::ajaxCancel') when type is 'ajax'
+ *   - 'url': The redirect URL when type is 'redirect'
+ *   - 'class': Additional CSS classes for the cancel button (default: ['btn', 'btn-danger'])
+ */
+function data_source_add_form_actions(
+  array &$form,
+  string $wrapper_id,
+  string $submit_callback = '::ajaxSubmit',
+  array $cancel_options = []
+) {
+  // Default cancel options
+  $cancel_defaults = [
+    'type' => 'dialog',
+    'callback' => NULL,
+    'url' => NULL,
+    'class' => ['btn', 'btn-danger'],
+  ];
+  $cancel_options = array_merge($cancel_defaults, $cancel_options);
+  $form['actions'] = [
+    '#prefix' => '<div id="action-'.$wrapper_id.'" class="form-actions-wrapper">',
+    '#suffix' => '</div>',
+  ];
+  // Submit button configuration
+  $form['actions']['submit'] = [
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#attributes' => [
+      'class' => ['btn', 'btn-primary'],
+    ],
+    '#ajax' => [
+      'callback' => $submit_callback,
+      'wrapper' => $wrapper_id,
+      'progress' => [
+        'type' => 'throbber',
+        'message' => t('Saving...'),
+      ],
+    ],
+  ];
+
+  // Cancel button/link configuration
+  $cancel_classes = implode(' ', $cancel_options['class']);
+
+  // Configure cancel based on type
+  if ($cancel_options['type'] === 'ajax' && !empty($cancel_options['callback'])) {
+    // Use AJAX callback for cancel
+    $form['actions']['cancel'] = [
+      '#type' => 'submit',
+      '#value' => t('Cancel'),
+      '#attributes' => [
+        'class' => $cancel_options['class'],
+      ],
+      '#limit_validation_errors' => [],
+      '#submit' => [],
+      '#ajax' => [
+        'callback' => $cancel_options['callback'],
+        'wrapper' => $wrapper_id,
+        'event' => 'click',
+      ],
+    ];
+  } elseif ($cancel_options['type'] === 'redirect' && !empty($cancel_options['url'])) {
+    // Link with redirect URL in data attribute
+    $form['actions']['cancel'] = [
+      '#type' => 'markup',
+      '#markup' => sprintf(
+        '<a href="#" class="%s data-cancel-action" data-cancel-type="redirect" data-cancel-url="%s">%s</a>',
+        htmlspecialchars($cancel_classes, ENT_QUOTES, 'UTF-8'),
+        htmlspecialchars($cancel_options['url'], ENT_QUOTES, 'UTF-8'),
+        t('Cancel')
+      ),
+    ];
+  } else {
+    // Default: Close dialog using data attribute
+    $form['actions']['cancel'] = [
+      '#type' => 'markup',
+      '#markup' => sprintf(
+        '<a href="#" class="%s data-cancel-action" data-cancel-type="dialog">%s</a>',
+        htmlspecialchars($cancel_classes, ENT_QUOTES, 'UTF-8'),
+        t('Cancel')
+      ),
+    ];
+  }
+
+  // Attach the dialog-close library
+  $form['#attached']['library'][] = 'data_source/dialog-close';
+
+  // Add wrapper prefix and suffix
+  $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+  $form['#suffix'] = '</div>';
+}
+
+/**
+ * Builds a DataTables header array with optional extra columns based on permission.
+ *
+ * @param string $access_right
+ *   The permission string to check (e.g., 'administer consent legal').
+ * @param \Drupal\Core\Session\AccountInterface|null $account
+ *   (optional) The account to check. Defaults to current user.
+ *
+ * @return array
+ *   An associative array with:
+ *     - 'header': The header array for DataTables.
+ *     - 'col_id_idx': The column index integer.
+ */
+function data_source_build_header(string $access_right, ?AccountInterface $account = NULL): array {
+  $account = $account ?: \Drupal::currentUser();
+
+  // Base header.
+  $header = [
+    [
+      'data' => '',
+      'class' => 'no-sort dt-orderable-none',
+      'data-orderable' => 'false',
+      'data-dt-order' => 'disable',
+      'data-searchable' => 'false',
+    ],
+  ];
+  $col_id_idx = 1;
+
+  // If user has permission, add extra columns.
+  if ($account->hasPermission($access_right)) {
+    $extra_cols = [
+      [
+        'data' => '',
+        'class' => 'no-sort dt-orderable-none',
+        'data-orderable' => 'false',
+        'data-dt-order' => 'disable',
+        'data-searchable' => 'false',
+      ],
+      [
+        'data' => '',
+        'class' => 'no-sort dt-orderable-none',
+        'data-orderable' => 'false',
+        'data-dt-order' => 'disable',
+        'data-searchable' => 'false',
+      ],
+    ];
+    $header = array_merge($header, $extra_cols);
+    $col_id_idx = 3;
+  }
+
+  return [
+    'header' => $header,
+    'col_id_idx' => $col_id_idx,
+  ];
+}
+
+function create_image_modal_view(array &$libraries) : array {
+  $libraries[] = 'data_source/image_popup_handler';
+  $logo_url = data_source_get_site_logo_url();
+  $img_markup = '<img src="' . $logo_url . '" alt="Logo" style="height: 30px; margin-right: 10px;" />';
+  $modal_dialog = [
+    '#type' => 'inline_template',
+    '#template' => '
+      <div class="modal fade" id="ImageModalView" tabindex="-1" aria-labelledby="ImageModalViewLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header ui-dialog-titlebar">
+              <h5 class="modal-title" id="ImageModalViewLabel">'.$img_markup.'Image Preview</h5>
+              <div class="ms-auto d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-secondary" id="zoomInBtn" title="Zoom In">+</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="zoomOutBtn" title="Zoom Out">−</button>
+                <button type="button" class="btn btn-sm btn-secondary" id="resetZoomBtn" title="Reset Zoom">Reset</button>
+                <button type="button" class="btn-close m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+            </div>
+            <div class="modal-body p-0 text-center" style="max-height:600px; overflow:auto; cursor:grab;">
+              <div id="imageWrapper" style="display:inline-block; position:relative;">
+                <img id="transactionsImagePreview" src="" class="img-fluid rounded shadow" alt="Image Preview" style="transform-origin: center center; user-select: none;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ',
+  ];
+  return $modal_dialog;
+}

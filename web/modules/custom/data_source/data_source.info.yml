@@ -1,0 +1,12 @@
+name: Data Source
+type: module
+description: Data Source dalam json untuk semua module
+package: User interface
+core_version_requirement: ^9 || ^10 || ^11
+
+dependencies:
+  - drupal:user
+  - drupal:file
+
+suggests:
+  - google_drive_upload:google_drive_upload
