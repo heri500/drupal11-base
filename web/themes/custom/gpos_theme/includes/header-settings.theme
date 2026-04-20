@@ -1,0 +1,253 @@
+<?php
+
+/**
+ * @file
+ * Header color settings theme functions.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_system_theme_settings_alter().
+ */
+function gpos_theme_form_system_theme_settings_alter(&$form, FormStateInterface $form_state) {
+  // Attach JavaScript for enhanced admin interface
+  $form['#attached']['library'][] = 'gpos_theme/admin-interface';
+
+  // Create a custom fieldset for our theme settings
+  $form['gpos_theme_settings'] = [
+    '#type' => 'details',
+    '#title' => t('GPOS Theme Settings'),
+    '#open' => TRUE,
+    '#weight' => -10,
+  ];
+
+  // Header color settings
+  $form['gpos_theme_settings']['header'] = [
+    '#type' => 'details',
+    '#title' => t('Header Settings'),
+    '#open' => TRUE,
+  ];
+
+  // Primary header color with color picker
+  $form['gpos_theme_settings']['header']['gpos_header_primary_color'] = [
+    '#type' => 'color',
+    '#title' => t('Header Primary Color'),
+    '#description' => t('Click to open color picker and choose the primary color for the header background gradient.'),
+    '#default_value' => theme_get_setting('gpos_header_primary_color') ?: '#000000',
+    '#attributes' => [
+      'class' => ['color-picker-field'],
+    ],
+  ];
+
+  // Secondary header color with color picker
+  $form['gpos_theme_settings']['header']['gpos_header_secondary_color'] = [
+    '#type' => 'color',
+    '#title' => t('Header Secondary Color'),
+    '#description' => t('Click to open color picker and choose the secondary color for the header background gradient.'),
+    '#default_value' => theme_get_setting('gpos_header_secondary_color') ?: '#020202',
+    '#attributes' => [
+      'class' => ['color-picker-field'],
+    ],
+  ];
+
+  // Header opacity
+  $form['gpos_theme_settings']['header']['gpos_header_opacity'] = [
+    '#type' => 'range',
+    '#title' => t('Header Opacity'),
+    '#description' => t('Set the opacity for the header background (0-100).'),
+    '#min' => 0,
+    '#max' => 100,
+    '#step' => 1,
+    '#default_value' => theme_get_setting('gpos_header_opacity') ?: 52,
+    '#field_suffix' => '%',
+  ];
+
+  // Text color settings
+  $form['gpos_theme_settings']['header']['text_settings'] = [
+    '#type' => 'details',
+    '#title' => t('Navigation Text Settings'),
+    '#open' => TRUE,
+  ];
+
+  // Navigation link color
+  $form['gpos_theme_settings']['header']['text_settings']['gpos_nav_link_color'] = [
+    '#type' => 'color',
+    '#title' => t('Navigation Link Color'),
+    '#description' => t('Choose the color for navigation links (.navbar-nav .nav-link).'),
+    '#default_value' => theme_get_setting('gpos_nav_link_color') ?: '#ffffff',
+    '#attributes' => [
+      'class' => ['color-picker-field'],
+    ],
+  ];
+
+  // Navigation link font weight
+  $form['gpos_theme_settings']['header']['text_settings']['gpos_nav_link_weight'] = [
+    '#type' => 'select',
+    '#title' => t('Navigation Link Font Weight'),
+    '#description' => t('Choose the font weight for navigation links.'),
+    '#options' => [
+      '300' => t('Light (300)'),
+      '400' => t('Normal (400)'),
+      '500' => t('Medium (500)'),
+      '600' => t('Semi-bold (600)'),
+      '700' => t('Bold (700)'),
+      '800' => t('Extra-bold (800)'),
+    ],
+    '#default_value' => theme_get_setting('gpos_nav_link_weight') ?: '400',
+  ];
+
+  // Active navigation link color
+  $form['gpos_theme_settings']['header']['text_settings']['gpos_nav_active_color'] = [
+    '#type' => 'color',
+    '#title' => t('Active Navigation Link Color'),
+    '#description' => t('Choose the color for active navigation links (.navbar-nav .nav-link.active).'),
+    '#default_value' => theme_get_setting('gpos_nav_active_color') ?: '#ffd700',
+    '#attributes' => [
+      'class' => ['color-picker-field'],
+    ],
+  ];
+
+  // Active navigation link font weight
+  $form['gpos_theme_settings']['header']['text_settings']['gpos_nav_active_weight'] = [
+    '#type' => 'select',
+    '#title' => t('Active Navigation Link Font Weight'),
+    '#description' => t('Choose the font weight for active navigation links.'),
+    '#options' => [
+      '300' => t('Light (300)'),
+      '400' => t('Normal (400)'),
+      '500' => t('Medium (500)'),
+      '600' => t('Semi-bold (600)'),
+      '700' => t('Bold (700)'),
+      '800' => t('Extra-bold (800)'),
+    ],
+    '#default_value' => theme_get_setting('gpos_nav_active_weight') ?: '600',
+  ];
+
+  // Enable/disable custom colors
+  $form['gpos_theme_settings']['header']['gpos_header_custom_colors_enable'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable Custom Header Colors'),
+    '#description' => t('Check this to use custom colors instead of the default gradient.'),
+    '#default_value' => theme_get_setting('gpos_header_custom_colors_enable') ?: 0,
+  ];
+
+  // Add login settings from login.theme
+  if (function_exists('gpos_theme_add_login_settings')) {
+    gpos_theme_add_login_settings($form, $form_state);
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function gpos_theme_preprocess_page(&$variables) {
+  // Always add header color variables, using defaults if custom colors are disabled
+  $custom_colors_enabled = theme_get_setting('gpos_header_custom_colors_enable');
+
+  $primary_color = $custom_colors_enabled ?
+    (theme_get_setting('gpos_header_primary_color') ?: '#000000') : '#000000';
+  $secondary_color = $custom_colors_enabled ?
+    (theme_get_setting('gpos_header_secondary_color') ?: '#020202') : '#020202';
+  $opacity = $custom_colors_enabled ?
+    (theme_get_setting('gpos_header_opacity') ?: 52) : 52;
+
+  // Get navigation text settings
+  $nav_link_color = $custom_colors_enabled ?
+    (theme_get_setting('gpos_nav_link_color') ?: '#ffffff') : '#ffffff';
+  $nav_link_weight = $custom_colors_enabled ?
+    (theme_get_setting('gpos_nav_link_weight') ?: '400') : '400';
+  $nav_active_color = $custom_colors_enabled ?
+    (theme_get_setting('gpos_nav_active_color') ?: '#ffd700') : '#ffd700';
+  $nav_active_weight = $custom_colors_enabled ?
+    (theme_get_setting('gpos_nav_active_weight') ?: '600') : '600';
+
+  // Convert hex to RGB for CSS custom properties
+  $primary_rgb = gpos_theme_hex_to_rgb($primary_color);
+  $secondary_rgb = gpos_theme_hex_to_rgb($secondary_color);
+
+  // Create CSS with custom properties including navigation styles
+  $css = "
+    :root {
+      --header-primary-color: {$primary_color} !important;
+      --header-secondary-color: {$secondary_color} !important;
+      --header-opacity: {$opacity}% !important;
+      --header-primary-rgb: {$primary_rgb} !important;
+      --header-secondary-rgb: {$secondary_rgb} !important;
+      --header-gradient: linear-gradient(rgb({$primary_rgb}), rgb({$secondary_rgb} / {$opacity}%)) !important;
+      --nav-link-color: {$nav_link_color} !important;
+      --nav-link-weight: {$nav_link_weight} !important;
+      --nav-active-color: {$nav_active_color} !important;
+      --nav-active-weight: {$nav_active_weight} !important;
+    }
+
+    .navbar-nav .nav-link {
+      color: {$nav_link_color} !important;
+      font-weight: {$nav_link_weight} !important;
+      transition: color 0.3s ease, font-weight 0.3s ease;
+    }
+
+    .navbar-nav .nav-link:hover {
+      color: {$nav_active_color} !important;
+      opacity: 0.8;
+    }
+
+    .navbar-nav .nav-link.active {
+      color: {$nav_active_color} !important;
+      font-weight: {$nav_active_weight} !important;
+    }
+  ";
+
+  $variables['#attached']['html_head'][] = [
+    [
+      '#tag' => 'style',
+      '#value' => $css,
+    ],
+    'gpos_theme_header_colors'
+  ];
+  $route_name = \Drupal::routeMatch()->getRouteName();
+  if ($route_name === 'user.login') {
+    $role = \Drupal::request()->query->get('role', '');
+    $variables['login_role'] = $role;
+
+    // Tell Drupal's cache system to vary by URL query string
+    $variables['#cache']['contexts'][] = 'url.query_args:role';
+
+  }
+}
+
+/**
+ * Helper function to convert hex color to RGB string.
+ */
+function gpos_theme_hex_to_rgb($hex) {
+  // Remove # if present
+  $hex = ltrim($hex, '#');
+
+  // Convert hex to RGB
+  $r = hexdec(substr($hex, 0, 2));
+  $g = hexdec(substr($hex, 2, 2));
+  $b = hexdec(substr($hex, 4, 2));
+
+  return "$r $g $b";
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function gpos_theme_preprocess_html(&$variables) {
+  // Add theme settings as CSS custom properties for more advanced usage
+  $custom_colors_enabled = theme_get_setting('gpos_header_custom_colors_enable');
+
+  if ($custom_colors_enabled) {
+    $primary_color = theme_get_setting('gpos_header_primary_color') ?: '#000000';
+    $secondary_color = theme_get_setting('gpos_header_secondary_color') ?: '#020202';
+    $opacity = theme_get_setting('gpos_header_opacity') ?: 52;
+
+    $variables['attributes']['style'] = "--header-primary-color: $primary_color; --header-secondary-color: $secondary_color; --header-opacity: {$opacity}%;";
+  }
+
+  // Add login-specific HTML classes
+  if (function_exists('gpos_theme_add_login_html_classes')) {
+    gpos_theme_add_login_html_classes($variables);
+  }
+}

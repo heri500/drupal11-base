@@ -1,0 +1,70 @@
+{#
+/**
+ * @file
+ * Theme override to display the user login page.
+ *
+ * Available variables:
+ * - logged_in: A flag indicating if the user is registered and signed in.
+ * - is_admin: A flag indicating if the user has permission to access
+ *   administration pages.
+ * - attributes: HTML attributes for the page element.
+ * - page: The renderable array representing the page content.
+ * - login_background_image: URL to the login background image.
+ * - login_logo: URL to the login logo.
+ *
+ * @see template_preprocess_page()
+ * @see html.html.twig
+ */
+#}
+
+<div{{ attributes.addClass('page-wrapper', 'path-user') }}>
+  <main class="main-container">
+    <div class="container-fluid">
+      <div class="row g-0">
+        <div class="col-lg-6 col-md-12 login-section-wrapper">
+          <div class="brand-wrapper">
+            {% if login_logo %}
+              <a href="{{ path('<front>') }}" title="{{ 'Go to homepage'|t }}">
+                <img src="{{ login_logo }}" alt="{{ 'Site Logo'|t }}" class="logo">
+              </a>
+            {% endif %}
+          </div>
+
+          <div class="login-wrapper my-auto">
+            <h1 class="login-title">{{ 'Log in'|t }}</h1>
+
+            {# Display status messages #}
+            {% if page.highlighted %}
+              <div class="highlighted">{{ page.highlighted }}</div>
+            {% endif %}
+
+            {# Display help content if available #}
+            {% if page.help %}
+              <div class="help">{{ page.help }}</div>
+            {% endif %}
+
+            {# Main login form content #}
+            {{ page.content }}
+
+            {# Additional links #}
+            <div class="login-footer-links">
+              <a href="{{ path('user.pass') }}" class="forgot-password-link">{{ 'Forgot password?'|t }}</a>
+              {% if user_register_url %}
+                <p class="login-wrapper-footer-text">
+                  {{ "Don't have an account?"|t }}
+                  <a href="{{ user_register_url }}" class="text-reset">{{ 'Register here'|t }}</a>
+                </p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 px-0 d-none d-lg-block">
+          {% if login_background_image %}
+            <img src="{{ login_background_image }}" alt="{{ 'Login background'|t }}" class="login-img">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

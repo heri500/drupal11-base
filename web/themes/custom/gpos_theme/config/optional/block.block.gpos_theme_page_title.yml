@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies:
+  theme:
+    - gpos_theme
+id: gpos_theme_page_title
+theme: gpos_theme
+region: header
+weight: -2
+provider: null
+plugin: page_title_block
+settings:
+  id: page_title_block
+  label: "Page title"
+  label_display: "0"
+  provider: core
+visibility: {}

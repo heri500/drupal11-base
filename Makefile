@@ -1,5 +1,3 @@
-.PHONY: install start stop clean reinstall
-
 install:
 	@echo "Starting DDEV..."
 	ddev start
@@ -14,19 +12,11 @@ install:
 		--yes
 	@echo "Enabling custom modules..."
 	ddev drush en data_source datatables --yes
+	@echo "Enabling Radix and subtheme..."
+	ddev drush en radix --yes
+	ddev drush theme:enable YOUR_SUBTHEME_NAME --yes
+	ddev drush config:set system.theme default YOUR_SUBTHEME_NAME --yes
 	@echo "Clearing caches..."
 	ddev drush cr
 	@echo ""
 	@echo "✅ Done! Visit: https://drupal11-base.ddev.site"
-
-start:
-	ddev start
-
-stop:
-	ddev stop
-
-clean:
-	ddev delete --omit-snapshot --yes
-	rm -rf vendor web/core web/modules/contrib web/themes/contrib
-
-reinstall: clean install

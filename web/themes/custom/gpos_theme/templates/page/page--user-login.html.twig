@@ -1,0 +1,86 @@
+{#
+/**
+ * @file
+ * Theme override to display the user login page.
+ *
+ * Available variables:
+ * - logged_in: A flag indicating if the user is registered and signed in.
+ * - is_admin: A flag indicating if the user has permission to access
+ *   administration pages.
+ * - attributes: HTML attributes for the page element.
+ * - page: The renderable array representing the page content.
+ * - login_logo: URL to the login logo.
+ * - login_role: Query param ?role= passed from hook_preprocess_page().
+ *
+ * @see template_preprocess_page()
+ * @see html.html.twig
+ */
+#}
+
+{% set is_admin_login = (login_role == 'admin') %}
+
+<div{{ attributes.addClass('page-wrapper', 'path-user', 'page-login', is_admin_login ? 'page-login--admin' : 'page-login--mitra') }}>
+  <main class="login-main d-flex align-items-center justify-content-center min-vh-100">
+    <div class="login-card text-center">
+
+      {# Logo / Brand #}
+      <div class="mb-4">
+        {% if login_logo %}
+          <a href="{{ path('<front>') }}" title="{{ 'Go to homepage'|t }}">
+            <img src="{{ login_logo }}" alt="{{ 'Site Logo'|t }}" class="login-logo mb-2">
+          </a>
+        {% else %}
+          <h5 class="logo-text">SEHAT<br>BERKAH<br>BERLIMPAH</h5>
+        {% endif %}
+      </div>
+
+      {# Welcome text — differs by role #}
+      {% if is_admin_login %}
+        <p class="login-welcome mb-4">
+          <strong>{{ 'Masuk Untuk Mengelola Sistem, Data,'|t }}<br>
+          {{ 'Dan Operasional GHANI'|t }}</strong><br>
+          {{ 'Halaman ini khusus untuk admin'|t }}<br>
+          {{ 'Semua aktivitas tercatat untuk keamanan sistem.'|t }}
+        </p>
+      {% else %}
+        <p class="login-welcome mb-4">
+          {{ 'Selamat Datang, Mitra'|t }} <strong>GHANI</strong><br>
+          {{ 'Masuk untuk melanjutkan aktivitas kemitraan Anda hari ini'|t }}<br>
+          {{ 'pantau performa, dan akses layanan kemitraan GHANI'|t }}<br>
+          {{ 'dalam satu tempat.'|t }}
+        </p>
+      {% endif %}
+
+      {# Status messages #}
+      {% if page.highlighted %}
+        <div class="highlighted mb-3">{{ page.highlighted }}</div>
+      {% endif %}
+      {% if page.help %}
+        <div class="help mb-3">{{ page.help }}</div>
+      {% endif %}
+
+      {# Login form rendered by Drupal #}
+      <div class="login-form-wrapper text-start">
+        {{ page.content }}
+      </div>
+
+      {# Forgot password link #}
+      <div class="mt-3">
+        <a href="{{ path('user.pass') }}" class="text-dark forgot-link">{{ 'Lupa Kata Sandi?'|t }}</a>
+      </div>
+
+      {# Footer text — differs by role #}
+      {% if is_admin_login %}
+        <div class="login-help-text mt-5">
+          <strong>{{ 'Pastikan akun Anda memiliki akses Admin.'|t }}</strong>
+        </div>
+      {% else %}
+        <div class="login-help-text mt-4">
+          <strong>{{ 'Butuh bantuan akses?'|t }}</strong><br>
+          {{ 'Hubungi Admin GHANI 081370707885'|t }}
+        </div>
+      {% endif %}
+
+    </div>
+  </main>
+</div>

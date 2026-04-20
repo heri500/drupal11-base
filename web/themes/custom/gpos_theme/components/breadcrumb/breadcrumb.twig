@@ -1,0 +1,37 @@
+{#
+Clean breadcrumb template with duplicate-last detection.
+#}
+
+{% set breadcrumb_attributes = attributes ?: create_attribute() %}
+
+{% block breadcrumb %}
+  {% if breadcrumb %}
+    {# Clone breadcrumb into a modifiable variable #}
+    {% set items = breadcrumb %}
+    {% set last      = items|last %}
+    {# Detect duplicate last item text #}
+    {% if items|length > 1 %}
+      {% set last      = items|last %}
+      {% set previous  = items[items|length - 2] %}
+
+      {% if last.text|render == previous.text|render %}
+        {# Remove the last breadcrumb #}
+        {% set items = items|slice(0, items|length - 1) %}
+      {% endif %}
+    {% endif %}
+
+    <div class="row mb-3">
+      <div class="btn-group btn-breadcrumb">
+        {% for item in items %}
+          <a href="{{ item.url ?: '#' }}" class="btn btn-success">
+            {% if loop.first %}
+              <i class="fa fa-home"></i>
+            {% else %}
+              {{ item.text }}
+            {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

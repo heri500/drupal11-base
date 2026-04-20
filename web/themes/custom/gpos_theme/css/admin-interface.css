@@ -1,0 +1,150 @@
+/**
+ * Admin interface styles for gpos_theme settings.
+ */
+
+/* Style the color picker inputs */
+.color-picker-field {
+  width: 60px;
+  height: 40px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.color-picker-field:hover {
+  border-color: #0073aa;
+}
+
+.color-picker-field:focus {
+  outline: none;
+  border-color: #0073aa;
+  box-shadow: 0 0 5px rgba(0, 115, 170, 0.3);
+}
+
+/* Header preview styling */
+.header-color-preview {
+  background-image: linear-gradient(rgb(0, 0, 0), rgba(2, 2, 2, 0.52));
+  box-shadow: 0 0.2rem 0.45rem rgba(0, 0, 0, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  transition: background-image 0.3s ease;
+  border: 1px solid #ddd;
+}
+
+/* Range slider styling */
+input[type="range"] {
+  width: 200px;
+  margin: 10px 0;
+}
+
+.form-range-output {
+  display: inline-block;
+  min-width: 40px;
+  color: #0073aa;
+  font-weight: bold;
+}
+
+/* Theme settings form layout improvements */
+.form-item-gpos-header-primary-color,
+.form-item-gpos-header-secondary-color,
+.form-item-gpos-nav-link-color,
+.form-item-gpos-nav-active-color {
+  display: inline-block;
+  margin-right: 20px;
+  vertical-align: top;
+}
+
+.form-item-gpos-nav-link-weight,
+.form-item-gpos-nav-active-weight {
+  display: inline-block;
+  margin-right: 20px;
+  vertical-align: top;
+  min-width: 150px;
+}
+
+.form-item-gpos-header-opacity {
+  clear: both;
+  margin-top: 15px;
+}
+
+/* Color picker labels */
+.form-item-gpos-header-primary-color label,
+.form-item-gpos-header-secondary-color label,
+.form-item-gpos-nav-link-color label,
+.form-item-gpos-nav-active-color label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Navigation text settings section */
+.form-item-gpos-nav-link-color,
+.form-item-gpos-nav-link-weight {
+  margin-bottom: 15px;
+}
+
+.form-item-gpos-nav-active-color,
+.form-item-gpos-nav-active-weight {
+  margin-bottom: 15px;
+}
+
+/* Enhanced header preview styling */
+.header-color-preview {
+  background-image: linear-gradient(rgb(0, 0, 0), rgba(2, 2, 2, 0.52));
+  box-shadow: 0 0.2rem 0.45rem rgba(0, 0, 0, 0.15), inset 0 -1px 0 rgba(255, 255, 255, 0.15);
+  transition: background-image 0.3s ease;
+  border: 1px solid #ddd;
+  min-height: 60px;
+}
+
+.preview-header-content {
+  position: relative;
+  width: 100%;
+}
+
+.preview-brand {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.preview-nav-link {
+  color: #ffffff;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  font-size: 14px;
+}
+
+.preview-nav-link:hover {
+  opacity: 0.8;
+}
+
+.preview-nav-link.active {
+  text-decoration: underline;
+}
+
+/* Grouping for related settings */
+.form-item-gpos-nav-link-color + .form-item-gpos-nav-link-weight {
+  border-left: 3px solid #e0e0e0;
+  padding-left: 15px;
+  margin-left: 10px;
+}
+
+.form-item-gpos-nav-active-color + .form-item-gpos-nav-active-weight {
+  border-left: 3px solid #e0e0e0;
+  padding-left: 15px;
+  margin-left: 10px;
+}
+
+/* Responsive design for admin interface */
+@media (max-width: 768px) {
+  .form-item-gpos-header-primary-color,
+  .form-item-gpos-header-secondary-color {
+    display: block;
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+}

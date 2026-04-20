@@ -1,0 +1,39 @@
+name: gpos_theme
+description: 'Custom GPOS theme based on Radix'
+screenshot: screenshot.png
+'alt text': 'gpos_theme theme screenshot'
+core_version_requirement: ^11
+engine: twig
+type: theme
+'base theme': radix
+starterkit: true
+'interface translation project': gpos_theme
+'interface translation server pattern': themes/custom/gpos_theme/translations/%language.po
+regions:
+  navbar_branding: 'Navbar branding'
+  navbar_left: 'Navbar left'
+  navbar_right: 'Navbar right'
+  header: Header
+  content: Content
+  page_bottom: 'Page bottom'
+  footer: Footer
+libraries:
+  - gpos_theme/style
+  - gpos_theme/login-styles
+ckeditor5-stylesheets:
+  - build/css/main.style.css
+libraries-extend:
+  core/drupal.ajax:
+    - gpos_theme/drupal.ajax
+  core/drupal.checkbox:
+    - gpos_theme/drupal.checkbox
+  core/drupal.message:
+    - gpos_theme/drupal.message
+  core/drupal.progress:
+    - gpos_theme/drupal.progress
+  clientside_validation_jquery/cv.jquery.validate:
+    - gpos_theme/jquery.validate
+version: 1.0.0
+project: radix
+datestamp: 1737210935
+generator: 'radix_starterkit:6.0.1'

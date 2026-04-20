@@ -1,0 +1,179 @@
+<?php
+
+/**
+ * @file
+ * Login specific theme functions for GPOS Theme.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\file\Entity\File;
+use Drupal\Core\Url;
+
+/**
+ * Add login settings to existing theme settings form.
+ */
+function gpos_theme_add_login_settings(&$form, FormStateInterface $form_state) {
+  // Ensure the main settings group exists (created by header-settings.theme)
+  if (!isset($form['gpos_theme_settings'])) {
+    $form['gpos_theme_settings'] = [
+      '#type' => 'details',
+      '#title' => t('GPOS Theme Settings'),
+      '#open' => TRUE,
+      '#weight' => -10,
+    ];
+  }
+
+  // Login page settings
+  $form['gpos_theme_settings']['login_settings'] = [
+    '#type' => 'details',
+    '#title' => t('Login Page Settings'),
+    '#open' => FALSE,
+  ];
+
+  $form['gpos_theme_settings']['login_settings']['login_background_image'] = [
+    '#type' => 'managed_file',
+    '#title' => t('Login Background Image'),
+    '#description' => t('Upload an image for the login page background. Recommended size: 1920x1080px or larger.'),
+    '#default_value' => theme_get_setting('login_background_image'),
+    '#upload_location' => 'public://theme/gpos_theme/',
+    '#upload_validators' => [
+      'FileExtension' => [
+        'extensions' => 'png jpg jpeg gif svg',
+      ],
+      'FileSizeLimit' => [
+        'fileLimit' => 5242880, // 5MB in bytes
+      ],
+    ],
+  ];
+
+  $form['gpos_theme_settings']['login_settings']['login_logo'] = [
+    '#type' => 'managed_file',
+    '#title' => t('Login Logo'),
+    '#description' => t('Upload a logo for the login page. SVG format recommended.'),
+    '#default_value' => theme_get_setting('login_logo'),
+    '#upload_location' => 'public://theme/gpos_theme/',
+    '#upload_validators' => [
+      'FileExtension' => [
+        'extensions' => 'png jpg jpeg gif svg',
+      ],
+      'FileSizeLimit' => [
+        'fileLimit' => 2097152, // 2MB in bytes
+      ],
+    ],
+  ];
+
+  // Add our submit handler
+  $form['#submit'][] = 'gpos_theme_login_settings_submit';
+}
+
+/**
+ * Submit handler for login settings.
+ */
+function gpos_theme_login_settings_submit(&$form, FormStateInterface $form_state) {
+  $file_fields = ['login_background_image', 'login_logo'];
+
+  foreach ($file_fields as $field_name) {
+    $file_ids = $form_state->getValue($field_name);
+    if (!empty($file_ids)) {
+      $file = File::load($file_ids[0]);
+      if ($file) {
+        $file->setPermanent();
+        $file->save();
+        \Drupal::service('file.usage')->add($file, 'gpos_theme', 'theme', 1);
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to get theme setting file URL.
+ */
+function gpos_theme_get_setting_file_url($setting_name) {
+  $file_id = theme_get_setting($setting_name);
+  if (!empty($file_id) && is_array($file_id) && isset($file_id[0])) {
+    $file = File::load($file_id[0]);
+    if ($file) {
+      return \Drupal::service('file_url_generator')->generateAbsoluteString($file->getFileUri());
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Login page preprocessing.
+ */
+function gpos_theme_preprocess_page__user_login(&$variables) {
+  // Add login library
+  $variables['#attached']['library'][] = 'gpos_theme/login-styles';
+
+  // Add user register URL
+  $user_settings = \Drupal::config('user.settings');
+  if ($user_settings->get('register') != 'admin_only') {
+    $variables['user_register_url'] = Url::fromRoute('user.register')->toString();
+  }
+
+  // Get theme settings for login page
+  $variables['login_background_image'] = gpos_theme_get_setting_file_url('login_background_image');
+  $variables['login_logo'] = gpos_theme_get_setting_file_url('login_logo');
+
+  // Add default fallback images
+  $theme_path = \Drupal::service('extension.list.theme')->getPath('gpos_theme');
+  if (!$variables['login_background_image']) {
+    $variables['login_background_image'] = '/' . $theme_path . '/images/login.jpg';
+  }
+  if (!$variables['login_logo']) {
+    $variables['login_logo'] = '/' . $theme_path . '/images/logo.svg';
+  }
+}
+
+/**
+ * Login form preprocessing.
+ */
+function gpos_theme_preprocess_user_login_form(&$variables) {
+  // Add Bootstrap classes to form elements
+  $variables['form']['name']['#attributes']['class'][] = 'form-control';
+  $variables['form']['name']['#attributes']['placeholder'] = t('email@example.com');
+
+  $variables['form']['pass']['#attributes']['class'][] = 'form-control';
+  $variables['form']['pass']['#attributes']['placeholder'] = t('Enter your password');
+
+  // Style the submit button
+  $variables['form']['actions']['submit']['#attributes']['class'][] = 'btn';
+  $variables['form']['actions']['submit']['#attributes']['class'][] = 'btn-lg';
+  $variables['form']['actions']['submit']['#attributes']['class'][] = 'btn-warning';
+  $variables['form']['actions']['submit']['#attributes']['class'][] = 'login-btn';
+  $variables['form']['actions']['submit']['#value'] = t('Login');
+
+  // Add d-grid class to the actions wrapper (submit button container)
+  $variables['form']['actions']['#attributes']['class'][] = 'd-grid';
+}
+
+/**
+ * Login form alter helper function.
+ */
+function gpos_theme_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add custom CSS class
+  $form['#attributes']['class'][] = 'custom-login-form';
+
+  // Modify field labels
+  $form['name']['#title'] = t('Username');
+  $form['pass']['#title'] = t('Password');
+
+  // Add placeholders
+  $form['name']['#attributes']['placeholder'] = t('Enter your username');
+  $form['pass']['#attributes']['placeholder'] = t('Enter your password');
+
+  $form['actions']['submit']['#attributes']['class'][] = 'btn-lg';
+  $form['actions']['submit']['#attributes']['class'][] = 'btn-warning';
+  $form['actions']['#attributes']['class'][] = 'd-grid';
+
+}
+
+/**
+ * Add login-specific HTML classes.
+ */
+function gpos_theme_add_login_html_classes(&$variables) {
+  if (\Drupal::routeMatch()->getRouteName() == 'user.login') {
+    $variables['attributes']['class'][] = 'page-login';
+  }
+}

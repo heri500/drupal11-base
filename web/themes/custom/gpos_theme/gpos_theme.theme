@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Theme functions.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+
+// Include all files from the includes directory.
+$includes_path = dirname(__FILE__) . '/includes/*.theme';
+foreach (glob($includes_path) as $file) {
+  require_once dirname(__FILE__) . '/includes/' . basename($file);
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for page templates.
+ */
+function gpos_theme_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+  // Add template suggestions based on route.
+  if ($route = \Drupal::routeMatch()->getRouteObject()) {
+    $route_name = str_replace('.', '_', \Drupal::routeMatch()->getRouteName());
+    $suggestions[] = 'page__' . $route_name;
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for form templates.
+ */
+function gpos_theme_theme_suggestions_form_alter(array &$suggestions, array $variables) {
+  $form_id = $variables['element']['#form_id'];
+  $suggestions[] = 'form__' . str_replace('-', '_', $form_id);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function gpos_theme_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Handle login form alterations
+  if ($form_id == 'user_login_form' && function_exists('gpos_theme_form_user_login_form_alter')) {
+    gpos_theme_form_user_login_form_alter($form, $form_state, $form_id);
+  }
+}

@@ -1,0 +1,190 @@
+/* Login Page Styles */
+.path-user .page-wrapper {
+  min-height: 100vh;
+}
+
+.login-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.brand-wrapper {
+  margin-bottom: 3rem;
+}
+
+.brand-wrapper .logo {
+  max-height: 60px;
+  width: auto;
+}
+
+.login-wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.login-title {
+  font-family: Karla, sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.login-wrapper .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.login-wrapper label {
+  font-family: Karla, sans-serif;
+  font-weight: 400;
+  color: #666;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.login-wrapper .form-control {
+  font-family: Karla, sans-serif;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.login-wrapper .form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.login-btn {
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-family: Karla, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.login-btn:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.forgot-password-link {
+  display: block;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #007bff;
+  text-decoration: none;
+  font-family: Karla, sans-serif;
+}
+
+.forgot-password-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.login-wrapper-footer-text {
+  text-align: center;
+  margin-top: 2rem;
+  color: #666;
+  font-family: Karla, sans-serif;
+}
+
+.login-wrapper-footer-text a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-wrapper-footer-text a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.login-img {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+
+/* Drupal specific adjustments */
+.path-user .user-login-form .form-actions {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.path-user .user-login-form .form-actions .button {
+  width: 100%;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-family: Karla, sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.path-user .user-login-form .form-actions .button:hover {
+  background-color: #0056b3;
+}
+
+/* Hide Drupal messages on login page */
+.path-user .messages {
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .login-section-wrapper {
+    padding: 1rem;
+  }
+
+  .login-title {
+    font-size: 2rem;
+  }
+
+  .login-img {
+    display: none !important;
+  }
+
+  .page-login .brand-wrapper .logo {
+    left: 0 !important;
+  }
+
+  .login-section-wrapper {
+    padding: 20px !important;
+  }
+}
+
+/* Custom error message styling */
+.path-user .form-item--error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.path-user .form-control.error {
+  border-color: #dc3545;
+}
+
+.path-user .form-control.error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.page-login .brand-wrapper .logo {
+  left: 160px;
+  position: relative;
+}

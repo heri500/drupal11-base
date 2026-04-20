@@ -1,0 +1,29 @@
+# Configuration schema for gpos_theme settings
+gpos_theme.settings:
+  type: theme_settings
+  label: 'GPOS Theme settings'
+  mapping:
+    gpos_header_primary_color:
+      type: string
+      label: 'Header Primary Color'
+    gpos_header_secondary_color:
+      type: string
+      label: 'Header Secondary Color'
+    gpos_header_opacity:
+      type: integer
+      label: 'Header Opacity'
+    gpos_header_custom_colors_enable:
+      type: boolean
+      label: 'Enable Custom Header Colors'
+    gpos_nav_link_color:
+      type: string
+      label: 'Navigation Link Color'
+    gpos_nav_link_weight:
+      type: string
+      label: 'Navigation Link Font Weight'
+    gpos_nav_active_color:
+      type: string
+      label: 'Active Navigation Link Color'
+    gpos_nav_active_weight:
+      type: string
+      label: 'Active Navigation Link Font Weight'
